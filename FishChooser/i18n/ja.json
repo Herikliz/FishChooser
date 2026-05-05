@@ -1,0 +1,7 @@
+{
+  "config.mod-active": "Modを有効にする",
+  "config.allow-all-fish": "すべての魚を許可",
+  "config.open-menu-key": "メニューを開くキー",
+  "menu.choose-item": "アイテムを選択：",
+  "menu.disable-normal-fishing": "無効にする（通常の釣り）"
+}

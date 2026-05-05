@@ -1,0 +1,16 @@
+{
+  "Name": "Fish Chooser",
+  "Author": "Herikliz",
+  "Version": "1.0.0",
+  "Description": "Permite escolher qual peixe será pescado em seguida.",
+  "UniqueID": "Herikliz.FishChooser",
+  "EntryDll": "FishChooser.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [ "Nexus:45741" ],
+  "Dependencies": [
+    {
+      "UniqueID": "spacechase0.GenericModConfigMenu",
+      "IsRequired": false
+    }
+  ]
+}
