@@ -1,7 +1,7 @@
 {
   "Name": "Fish Chooser",
   "Author": "Herikliz",
-  "Version": "1.0.0",
+  "Version": "1.1.0",
   "Description": "Permite escolher qual peixe será pescado em seguida.",
   "UniqueID": "Herikliz.FishChooser",
   "EntryDll": "FishChooser.dll",

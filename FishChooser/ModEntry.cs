@@ -31,19 +31,30 @@ namespace FishChooser
     {
         private List<KeyValuePair<string, string>> options;
         private int startIndex;
-        private int maxItems = 7;
+        private int maxItems = 6;
         private int itemHeight = 60;
         private bool scrolling;
         private Rectangle scrollBarTrack;
         private Rectangle scrollBarRunner;
+        private Rectangle randomRect;
+        private Rectangle normalRect;
+        private Rectangle silverRect;
+        private Rectangle goldRect;
+        private Rectangle iridiumRect;
 
         public FishScrollMenu(List<KeyValuePair<string, string>> options) : base(Game1.uiViewport.Width / 2 - 300, Game1.uiViewport.Height / 2 - 350, 600, 700, true)
         {
             this.options = options;
             upperRightCloseButton = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width - 36, yPositionOnScreen - 8, 48, 48), Game1.mouseCursors, new Rectangle(337, 494, 12, 12), 4f);
             
-            scrollBarTrack = new Rectangle(xPositionOnScreen + width - 64, yPositionOnScreen + 150, 24, maxItems * itemHeight);
+            scrollBarTrack = new Rectangle(xPositionOnScreen + width - 64, yPositionOnScreen + 190, 24, maxItems * itemHeight);
             UpdateRunnerPosition();
+
+            randomRect = new Rectangle(xPositionOnScreen + 50, yPositionOnScreen + 135, 32, 32);
+            normalRect = new Rectangle(xPositionOnScreen + 100, yPositionOnScreen + 135, 32, 32);
+            silverRect = new Rectangle(xPositionOnScreen + 150, yPositionOnScreen + 135, 32, 32);
+            goldRect = new Rectangle(xPositionOnScreen + 200, yPositionOnScreen + 135, 32, 32);
+            iridiumRect = new Rectangle(xPositionOnScreen + 250, yPositionOnScreen + 135, 32, 32);
         }
 
         private void UpdateRunnerPosition()
@@ -71,8 +82,15 @@ namespace FishChooser
         {
             base.receiveLeftClick(x, y, playSound);
 
+            if (randomRect.Contains(x, y)) { ModEntry.SelectedQuality = -1; Game1.playSound("coin"); return; }
+            if (normalRect.Contains(x, y)) { ModEntry.SelectedQuality = 0; Game1.playSound("coin"); return; }
+            if (silverRect.Contains(x, y)) { ModEntry.SelectedQuality = 1; Game1.playSound("coin"); return; }
+            if (goldRect.Contains(x, y)) { ModEntry.SelectedQuality = 2; Game1.playSound("coin"); return; }
+            if (iridiumRect.Contains(x, y)) { ModEntry.SelectedQuality = 4; Game1.playSound("coin"); return; }
+
             if (upperRightCloseButton != null && upperRightCloseButton.containsPoint(x, y))
             {
+                ModEntry.HelperInstance.Input.Suppress(SButton.MouseLeft);
                 exitThisMenu();
                 return;
             }
@@ -88,6 +106,7 @@ namespace FishChooser
             if (cancelRect.Contains(x, y))
             {
                 ModEntry.SelectedFishId = null;
+                ModEntry.HelperInstance.Input.Suppress(SButton.MouseLeft);
                 exitThisMenu();
                 return;
             }
@@ -95,10 +114,11 @@ namespace FishChooser
             for (int i = 0; i < maxItems; i++)
             {
                 if (startIndex + i >= options.Count) break;
-                Rectangle rect = new Rectangle(xPositionOnScreen + 40, yPositionOnScreen + 150 + (i * itemHeight), width - 120, itemHeight);
+                Rectangle rect = new Rectangle(xPositionOnScreen + 40, yPositionOnScreen + 190 + (i * itemHeight), width - 120, itemHeight);
                 if (rect.Contains(x, y))
                 {
                     ModEntry.SelectedFishId = options[startIndex + i].Key;
+                    ModEntry.HelperInstance.Input.Suppress(SButton.MouseLeft);
                     exitThisMenu();
                     return;
                 }
@@ -136,10 +156,26 @@ namespace FishChooser
             upperRightCloseButton?.draw(b);
 
             Utility.drawTextWithShadow(b, ModEntry.Translator.Get("menu.choose-item"), Game1.dialogueFont, new Vector2(xPositionOnScreen + 50, yPositionOnScreen + 96), Color.Black);
+
+            Color cR = ModEntry.SelectedQuality == -1 ? Color.White : Color.White * 0.4f;
+            b.Draw(Game1.mouseCursors, new Vector2(randomRect.X, randomRect.Y), new Rectangle(381, 361, 10, 10), cR, 0f, Vector2.Zero, 3.2f, SpriteEffects.None, 1f);
+
+            Color c0 = ModEntry.SelectedQuality == 0 ? Color.Black : Color.Black * 0.4f;
+            b.Draw(Game1.mouseCursors, new Vector2(normalRect.X, normalRect.Y), new Rectangle(338, 400, 8, 8), c0, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+
+            Color c1 = ModEntry.SelectedQuality == 1 ? Color.White : Color.White * 0.4f;
+            b.Draw(Game1.mouseCursors, new Vector2(silverRect.X, silverRect.Y), new Rectangle(338, 400, 8, 8), c1, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+
+            Color c2 = ModEntry.SelectedQuality == 2 ? Color.White : Color.White * 0.4f;
+            b.Draw(Game1.mouseCursors, new Vector2(goldRect.X, goldRect.Y), new Rectangle(346, 400, 8, 8), c2, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+
+            Color c4 = ModEntry.SelectedQuality == 4 ? Color.White : Color.White * 0.4f;
+            b.Draw(Game1.mouseCursors, new Vector2(iridiumRect.X, iridiumRect.Y), new Rectangle(346, 392, 8, 8), c4, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+
             for (int i = 0; i < maxItems; i++)
             {
                 if (startIndex + i >= options.Count) break;
-                int yPos = yPositionOnScreen + 150 + (i * itemHeight);
+                int yPos = yPositionOnScreen + 190 + (i * itemHeight);
                 bool hovered = new Rectangle(xPositionOnScreen + 40, yPos, width - 120, itemHeight).Contains(Game1.getMouseX(), Game1.getMouseY());
                 Color color = hovered ? Color.DarkOrange : Color.Black;
                 Utility.drawTextWithShadow(b, options[startIndex + i].Value, Game1.dialogueFont, new Vector2(xPositionOnScreen + 50, yPos), color);
@@ -161,18 +197,26 @@ namespace FishChooser
     {
         public static ModConfig Config;
         public static string SelectedFishId = null;
+        public static int SelectedQuality = -1;
         public static ITranslationHelper Translator;
+        public static IModHelper HelperInstance;
         private static readonly List<string> TrashIds = new List<string> { "(O)167", "(O)168", "(O)169", "(O)170", "(O)171", "(O)172" };
         public override void Entry(IModHelper helper)
         {
             Config = helper.ReadConfig<ModConfig>();
             Translator = helper.Translation;
+            HelperInstance = helper;
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             helper.Events.Input.ButtonPressed += OnButtonPressed;
+            helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
 
             var harmony = new Harmony(ModManifest.UniqueID);
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.getFish)),
+                postfix: new HarmonyMethod(typeof(ModEntry), nameof(GetFishPostfix))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farm), nameof(Farm.getFish)),
                 postfix: new HarmonyMethod(typeof(ModEntry), nameof(GetFishPostfix))
             );
         }
@@ -188,9 +232,20 @@ namespace FishChooser
             configMenu.AddKeybind(ModManifest, () => Config.OpenMenuKey, val => Config.OpenMenuKey = val, () => Translator.Get("config.open-menu-key"));
         }
 
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
+        {
+            if (!Config.ModActive || string.IsNullOrEmpty(SelectedFishId)) return;
+            if (SelectedQuality == -1) return;
+            if (Game1.player.mostRecentlyGrabbedItem is StardewValley.Object obj && obj.QualifiedItemId == SelectedFishId)
+            {
+                obj.Quality = SelectedQuality;
+            }
+        }
+
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            if (!Context.IsPlayerFree || Game1.activeClickableMenu != null || !Config.ModActive || e.Button != Config.OpenMenuKey) return;
+            bool isFishing = Game1.player.CurrentTool is StardewValley.Tools.FishingRod;
+            if (!(Context.IsPlayerFree || isFishing) || Game1.activeClickableMenu != null || !Config.ModActive || e.Button != Config.OpenMenuKey) return;
 
             GameLocation mapaAtual = Game1.currentLocation;
             if (mapaAtual == null) return;
@@ -201,7 +256,7 @@ namespace FishChooser
             MostrarTelaDeEscolha(listaFinalDePeixes);
         }
 
-        private List<string> BuscarPeixesDoMapa(GameLocation espaco)
+        public static List<string> BuscarPeixesDoMapa(GameLocation espaco)
         {
             List<string> peixesAprovados = new List<string>();
 
@@ -326,12 +381,27 @@ namespace FishChooser
             return montador.ToString().Normalize(NormalizationForm.FormC);
         }
 
-        public static void GetFishPostfix(ref Item __result)
+        public static void GetFishPostfix(Farmer who, ref Item __result)
         {
             if (!Config.ModActive || string.IsNullOrEmpty(SelectedFishId)) return;
+            if (who == null || !who.IsLocalPlayer) return;
+            if (!(who.CurrentTool is StardewValley.Tools.FishingRod)) return;
+
+            if (!Config.AllowAllFish)
+            {
+                List<string> peixesPermitidos = BuscarPeixesDoMapa(Game1.currentLocation);
+                if (!peixesPermitidos.Contains(SelectedFishId))
+                {
+                    SelectedFishId = null;
+                    return;
+                }
+            }
 
             __result = ItemRegistry.Create(SelectedFishId);
-            SelectedFishId = null;
+            if (__result is StardewValley.Object obj && SelectedQuality != -1)
+            {
+                obj.Quality = SelectedQuality;
+            }
         }
     }
 }
